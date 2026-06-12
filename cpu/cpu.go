@@ -18,6 +18,26 @@ func (cpu *Chip8) Init() {
 	cpu.ProgramCounter = 0x200
 }
 
+func (cpu *Chip8) X() uint8 {
+	return uint8((cpu.Opcode & 0x0F00) >> 8)
+}
+
+func (cpu *Chip8) Y() uint8 {
+	return uint8((cpu.Opcode & 0x00F0) >> 4)
+}
+
+func (cpu *Chip8) NN() uint8 {
+	return uint8(cpu.Opcode & 0x00FF)
+}
+
+func (cpu *Chip8) NNN() uint16 {
+	return cpu.Opcode & 0x0FFF
+}
+
+func (cpu *Chip8) N() uint8 {
+	return uint8(cpu.Opcode & 0x000F)
+}
+
 func (cpu *Chip8) Emulate() {
 	// Fetch opcode - 2 bytes
 	cpu.Opcode = uint16(cpu.Memory[cpu.ProgramCounter]) << 8 | uint16(cpu.Memory[cpu.ProgramCounter + 1])
@@ -100,7 +120,7 @@ func (cpu *Chip8) Emulate() {
 					break
 
 				case 0x0001:
-					
+
 			}
 
 	}
