@@ -47,11 +47,40 @@ func (cpu *Chip8) Emulate() {
 
 			if cpu.RegisterV[x] == uint8(nn) {
 				cpu.ProgramCounter += 4
+			} else {
+				cpu.ProgramCounter += 2
 			}
+			break
 
+		case 0x4000:
+			x := (cpu.Opcode & 0x0F00) >> 8
+			nn := cpu.Opcode & 0x00FF
+
+			if cpu.RegisterV[x] != uint8(nn) {
+				cpu.ProgramCounter += 4
+			} else {
+				cpu.ProgramCounter += 2
+			}
+			break
+
+		case 0x5000:
+			x := (cpu.Opcode & 0x0F00) >> 8
+			y := (cpu.Opcode & 0x00F0) >> 4
+
+			if cpu.RegisterV[x] == cpu.RegisterV[y] {
+				cpu.ProgramCounter += 4
+			} else {
+				cpu.ProgramCounter += 2
+			}
+			break
+		
+		case 0x6000:
+			x := (cpu.Opcode & 0x0F00) >> 8
+			nn := cpu.Opcode & 0x00FF
+			cpu.RegisterV[x] = uint8(nn)
 			cpu.ProgramCounter += 2
 			break
-		}
+	}
 
 }
 
