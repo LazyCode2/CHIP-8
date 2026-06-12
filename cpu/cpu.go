@@ -62,10 +62,7 @@ func (cpu *Chip8) Emulate() {
 			cpu.ProgramCounter = cpu.Opcode & 0xFFF
 		
 		case 0x3000:
-			x := (cpu.Opcode & 0x0F00) >> 8
-			nn := cpu.Opcode & 0x00FF
-
-			if cpu.RegisterV[x] == uint8(nn) {
+			if cpu.RegisterV[cpu.X()] == cpu.NN() {
 				cpu.ProgramCounter += 4
 			} else {
 				cpu.ProgramCounter += 2
@@ -73,10 +70,7 @@ func (cpu *Chip8) Emulate() {
 			break
 
 		case 0x4000:
-			x := (cpu.Opcode & 0x0F00) >> 8
-			nn := cpu.Opcode & 0x00FF
-
-			if cpu.RegisterV[x] != uint8(nn) {
+			if cpu.RegisterV[cpu.X()] != cpu.NN() {
 				cpu.ProgramCounter += 4
 			} else {
 				cpu.ProgramCounter += 2
@@ -84,10 +78,7 @@ func (cpu *Chip8) Emulate() {
 			break
 
 		case 0x5000:
-			x := (cpu.Opcode & 0x0F00) >> 8
-			y := (cpu.Opcode & 0x00F0) >> 4
-
-			if cpu.RegisterV[x] == cpu.RegisterV[y] {
+			if cpu.RegisterV[cpu.X()] == cpu.RegisterV[cpu.Y()] {
 				cpu.ProgramCounter += 4
 			} else {
 				cpu.ProgramCounter += 2
@@ -95,27 +86,20 @@ func (cpu *Chip8) Emulate() {
 			break
 		
 		case 0x6000:
-			x := (cpu.Opcode & 0x0F00) >> 8
-			nn := cpu.Opcode & 0x00FF
-			cpu.RegisterV[x] = uint8(nn)
+			cpu.RegisterV[cpu.X()] = cpu.NN()
 			cpu.ProgramCounter += 2
 			break
 		
 		case 0x7000:
-			x := (cpu.Opcode & 0x0F00) >> 8
-			nn := cpu.Opcode & 0x00FF
-			result := uint16(cpu.RegisterV[x]) + uint16(nn)
-			cpu.RegisterV[x] = uint8(result)
+			result := uint16(cpu.RegisterV[cpu.X()]) + uint16(cpu.NN())
+			cpu.RegisterV[cpu.X()] = uint8(result)
 			cpu.ProgramCounter += 2
 			break
 		
 		case 0x8000:
 			switch cpu.Opcode & 0x000F {
 				case 0x0000:
-					x := (cpu.Opcode & 0x0F00) >> 8
-					y := (cpu.Opcode & 0x00F0) >> 4
-
-					cpu.RegisterV[y] = cpu.RegisterV[x]
+					cpu.RegisterV[cpu.Y()] = cpu.RegisterV[cpu.X()]
 					cpu.ProgramCounter += 2
 					break
 
@@ -124,5 +108,4 @@ func (cpu *Chip8) Emulate() {
 			}
 
 	}
-
 }
