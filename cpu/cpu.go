@@ -18,22 +18,27 @@ func (cpu *Chip8) Init() {
 	cpu.ProgramCounter = 0x200
 }
 
+// Return Vx00 field
 func (cpu *Chip8) X() uint8 {
 	return uint8((cpu.Opcode & 0x0F00) >> 8)
 }
 
+// Return Vy00 field
 func (cpu *Chip8) Y() uint8 {
 	return uint8((cpu.Opcode & 0x00F0) >> 4)
 }
 
+// Return 00nn field
 func (cpu *Chip8) NN() uint8 {
 	return uint8(cpu.Opcode & 0x00FF)
 }
 
+// Return 0nnn field
 func (cpu *Chip8) NNN() uint16 {
 	return cpu.Opcode & 0x0FFF
 }
 
+// Return 000n field
 func (cpu *Chip8) N() uint8 {
 	return uint8(cpu.Opcode & 0x000F)
 }
@@ -104,7 +109,29 @@ func (cpu *Chip8) Emulate() {
 					break
 
 				case 0x0001:
+					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] | cpu.RegisterV[cpu.Y()]
+					cpu.ProgramCounter += 2
+					break
+				case 0x0002:
+					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] & cpu.RegisterV[cpu.Y()]
+					cpu.ProgramCounter += 2
+					break
 
+				case 0x0003:
+					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] ^ cpu.RegisterV[cpu.Y()]
+					cpu.ProgramCounter += 2
+					break
+				case 0x0004:
+					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] + cpu.RegisterV[cpu.Y()]
+					
+					if cpu.RegisterV[cpu.X()] > 255 {
+						cpu.RegisterV[0xF] = 1
+					} else {
+						cpu.RegisterV[0xF] = 0
+					}
+
+					cpu.ProgramCounter += 2
+					break
 			}
 
 	}
