@@ -45,7 +45,7 @@ func (cpu *Chip8) Emulate() {
 			x := (cpu.Opcode & 0x0F00) >> 8
 			nn := cpu.Opcode & 0x00FF
 
-			if cpu.RegisterV[x] != uint8(nn) {
+			if cpu.RegisterV[x] == uint8(nn) {
 				cpu.ProgramCounter += 4
 			}
 
