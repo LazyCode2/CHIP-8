@@ -11,6 +11,8 @@ type Chip8 struct {
 	Opcode 		   uint16
 	Index		   uint16
 
+	Display[64 * 32] bool
+
 }
 
 
