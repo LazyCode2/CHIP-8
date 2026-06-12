@@ -12,7 +12,10 @@ type Chip8 struct {
 	Index		   uint16
 
 	Display[64 * 32] bool
+}
 
+func (cpu *Chip8) Init() {
+	cpu.ProgramCounter = 0x200
 }
 
 
