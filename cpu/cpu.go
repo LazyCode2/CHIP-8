@@ -1,0 +1,13 @@
+package cpu
+
+type Chip8 struct {
+	Stack[16]	 uint16
+	StackPointer uint16  
+
+	Memory[4096]  bool
+	RegisterV[16] uint8
+
+	ProgramCounter uint16
+	Opcode 		   uint16
+	Index		   uint16
+}
