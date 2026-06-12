@@ -80,9 +80,29 @@ func (cpu *Chip8) Emulate() {
 			cpu.RegisterV[x] = uint8(nn)
 			cpu.ProgramCounter += 2
 			break
+		
+		case 0x7000:
+			x := (cpu.Opcode & 0x0F00) >> 8
+			nn := cpu.Opcode & 0x00FF
+			result := uint16(cpu.RegisterV[x]) + uint16(nn)
+			cpu.RegisterV[x] = uint8(result)
+			cpu.ProgramCounter += 2
+			break
+		
+		case 0x8000:
+			switch cpu.Opcode & 0x000F {
+				case 0x0000:
+					x := (cpu.Opcode & 0x0F00) >> 8
+					y := (cpu.Opcode & 0x00F0) >> 4
+
+					cpu.RegisterV[y] = cpu.RegisterV[x]
+					cpu.ProgramCounter += 2
+					break
+
+				case 0x0001:
+					
+			}
+
 	}
 
 }
-
-
-
