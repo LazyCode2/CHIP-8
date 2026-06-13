@@ -1,8 +1,8 @@
 package cpu
 
 import (
-	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"os"
@@ -344,22 +344,26 @@ func (cpu *Chip8) Emulate() {
 		}
 }
 
-func (cpu *Chip8) LoadROM(Fpath string) {
+func (cpu *Chip8) LoadROM(path string) {
 	cpu.Init()
-	
-	Rom , err := os.Open(Fpath)
+
+	file, err := os.Open(path)
 	if err != nil {
-		log.Fatalf("Failed to open file: %s", err)
+		log.Fatalf("failed to open ROM: %v", err)
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		log.Fatalf("failed to read ROM: %v", err)
 	}
 
-	defer Rom.Close()
-
-	scanner := bufio.NewScanner(Rom)
-	for scanner.Scan() {
-		line := scanner.Bytes()
-		for i := range line {
-			cpu.Memory[i+512] = line[i]
+	for i, b := range data {
+		addr := 0x200 + i
+		if addr >= len(cpu.Memory) {
+			break
 		}
+		cpu.Memory[addr] = b
 	}
 }
 
