@@ -1,5 +1,7 @@
 package cpu
 
+import "math/rand"
+
 type Chip8 struct {
 	Stack[16]	 uint16
 	StackPointer uint16  
@@ -173,5 +175,29 @@ func (cpu *Chip8) Emulate() {
 					break
 			}
 
+		case 0x9000:
+			if cpu.RegisterV[cpu.X()] != cpu.RegisterV[cpu.Y()] {
+				cpu.ProgramCounter += 4
+			} else {
+				cpu.ProgramCounter += 2
+			}
+
+			break
+	
+		case 0xA000:
+			cpu.Index = cpu.NNN()
+
+			cpu.ProgramCounter += 2
+			break
+		
+		case 0xB000:
+			cpu.ProgramCounter = cpu.NNN() + uint16(cpu.RegisterV[0])
+			break
+	
+		case 0xC000:
+			cpu.RegisterV[cpu.X()] = uint8(rand.Int()) & cpu.NN()
+
+			cpu.ProgramCounter += 2
+			break
 	}
 }
