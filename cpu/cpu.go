@@ -1,6 +1,9 @@
 package cpu
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+)
 
 type Chip8 struct {
 	Stack[16]	 uint16
@@ -16,6 +19,9 @@ type Chip8 struct {
 	Display[64 * 32] bool
 
 	Key[16]	uint8
+
+	DelayTimer uint8
+	SoundTimer uint8
 }
 
 func (cpu *Chip8) Init() {
@@ -234,7 +240,7 @@ func (cpu *Chip8) Emulate() {
 			cpu.ProgramCounter += 2
 			break
 
-			case 0xE000:
+		case 0xE000:
 				switch cpu.Opcode & 0x00FF {
 					case 0x009E:
 						if cpu.Key[cpu.X()] != 0 {
@@ -254,6 +260,79 @@ func (cpu *Chip8) Emulate() {
 
 						break
 				} 
+		
+		case 0xF000:
+			switch  cpu.Opcode & 0x00FF {
+				case 0x0007:
+					cpu.RegisterV[cpu.X()] = cpu.DelayTimer
+
+					cpu.ProgramCounter += 2
+					break
+
+				case 0x000A:
+					keypressed := false
+
+					for i := range cpu.Key {
+						if cpu.Key[i] != 0 {
+							cpu.RegisterV[cpu.X()] = cpu.Key[i]
+							keypressed = true
+						}
+
+						if !keypressed {
+							return
+						}
+					}
+
+					cpu.ProgramCounter += 2
+					break
+
+				case 0x0015:
+					cpu.DelayTimer = cpu.RegisterV[cpu.X()]
+
+					cpu.ProgramCounter += 2
+					break
 			
-	}
+				case 0x0018:
+					cpu.SoundTimer = cpu.RegisterV[cpu.X()]
+
+					cpu.ProgramCounter += 2
+					break
+
+				case 0x001E:
+					cpu.Index += uint16(cpu.RegisterV[cpu.X()])
+
+					cpu.ProgramCounter += 2
+					break
+
+				case 0x0029:
+					cpu.Index = uint16(cpu.RegisterV[cpu.X()]) * 0x5
+
+					cpu.ProgramCounter += 2
+					break
+				case 0x0055:
+					for i := 0; i <= int(cpu.RegisterV[cpu.X()]); i++ {
+						cpu.Memory[i + 1] = cpu.RegisterV[i]
+					}
+
+					cpu.Index = cpu.Index + uint16(cpu.X()) + 1
+
+					cpu.ProgramCounter += 2
+					break
+
+				case 0x0065:
+					for i := 0; i <= int(cpu.RegisterV[cpu.X()]); i++ {
+						cpu.RegisterV[i] = cpu.Memory[i + 1]
+					}
+
+					cpu.Index = cpu.Index + uint16(cpu.X()) + 1
+
+					cpu.ProgramCounter += 2
+					break
+				
+				default:
+					fmt.Printf("Unknown opcode")
+			}
+			
+			break 
+		}
 }
