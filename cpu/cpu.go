@@ -121,6 +121,7 @@ func (cpu *Chip8) Emulate() {
 					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] ^ cpu.RegisterV[cpu.Y()]
 					cpu.ProgramCounter += 2
 					break
+
 				case 0x0004:
 					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] + cpu.RegisterV[cpu.Y()]
 					
@@ -130,6 +131,44 @@ func (cpu *Chip8) Emulate() {
 						cpu.RegisterV[0xF] = 0
 					}
 
+					cpu.ProgramCounter += 2
+					break
+
+				case 0x0005:
+					if cpu.RegisterV[cpu.Y()] > cpu.RegisterV[cpu.X()] {
+						cpu.RegisterV[0xF] = 0
+					} else {
+						cpu.RegisterV[0xF] = 1
+					}
+
+					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] - cpu.RegisterV[cpu.Y()]
+
+					cpu.ProgramCounter += 2
+					break
+
+				case 0x0006:
+					cpu.RegisterV[0xF] = cpu.RegisterV[cpu.X()] & 0x1
+					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] >> 1
+
+					cpu.ProgramCounter += 2
+					break
+
+				case 0x0007:
+					if cpu.RegisterV[cpu.X()] > cpu.RegisterV[cpu.Y()] {
+						cpu.RegisterV[0xF] = 0
+					} else {
+						cpu.RegisterV[0xF] = 1
+					}
+
+					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.Y()] - cpu.RegisterV[cpu.X()]
+
+					cpu.ProgramCounter += 2
+					break
+				
+				case 0x000E:
+					cpu.RegisterV[0xF] = cpu.RegisterV[cpu.X()] >> 7
+					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] << 1
+			
 					cpu.ProgramCounter += 2
 					break
 			}
