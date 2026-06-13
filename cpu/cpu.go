@@ -14,6 +14,8 @@ type Chip8 struct {
 	Index		   uint16
 
 	Display[64 * 32] bool
+
+	Key[16]	uint8
 }
 
 func (cpu *Chip8) Init() {
@@ -231,6 +233,27 @@ func (cpu *Chip8) Emulate() {
 
 			cpu.ProgramCounter += 2
 			break
+
+			case 0xE000:
+				switch cpu.Opcode & 0x00FF {
+					case 0x009E:
+						if cpu.Key[cpu.X()] != 0 {
+							cpu.ProgramCounter += 4
+						} else {
+							cpu.ProgramCounter += 2
+						}
+
+						break
+
+					case 0x00A1:
+						if cpu.Key[cpu.X()] == 0 {
+							cpu.ProgramCounter += 4
+						} else {
+							cpu.ProgramCounter += 2
+						}
+
+						break
+				} 
 			
 	}
 }
