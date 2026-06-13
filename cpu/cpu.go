@@ -29,6 +29,7 @@ type Chip8 struct {
 
 func (cpu *Chip8) Init() {
 	cpu.ProgramCounter = 0x200
+	cpu.StackPointer = 0
 }
 
 // Return Vx00 field
@@ -149,6 +150,8 @@ func (cpu *Chip8) Emulate() {
 						cpu.RegisterV[0xF] = 0
 					}
 
+					cpu.RegisterV[cpu.X()] = uint8(sum)
+
 					cpu.ProgramCounter += 2
 					break
 
@@ -185,8 +188,7 @@ func (cpu *Chip8) Emulate() {
 				
 				case 0x000E:
 					cpu.RegisterV[0xF] = cpu.RegisterV[cpu.X()] >> 7
-					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] << 1
-			
+					cpu.RegisterV[cpu.X()] <<= 1
 					cpu.ProgramCounter += 2
 					break
 			}
@@ -273,21 +275,15 @@ func (cpu *Chip8) Emulate() {
 					break
 
 				case 0x000A:
-					keypressed := false
-
-					for i := range cpu.Key {
+					for i := 0; i < 16; i++ {
 						if cpu.Key[i] != 0 {
-							cpu.RegisterV[cpu.X()] = cpu.Key[i]
-							keypressed = true
-						}
-
-						if !keypressed {
+							cpu.RegisterV[cpu.X()] = uint8(i)
+							cpu.ProgramCounter += 2
 							return
 						}
 					}
 
-					cpu.ProgramCounter += 2
-					break
+					return
 
 				case 0x0015:
 					cpu.DelayTimer = cpu.RegisterV[cpu.X()]
@@ -312,22 +308,34 @@ func (cpu *Chip8) Emulate() {
 
 					cpu.ProgramCounter += 2
 					break
+				case 0x0033:
+					x := cpu.RegisterV[cpu.X()]
+
+					cpu.Memory[cpu.Index+2] = x % 10
+					x /= 10
+					cpu.Memory[cpu.Index+1] = x % 10
+					x /= 10
+					cpu.Memory[cpu.Index] = x
+
+					cpu.ProgramCounter += 2
+					break
+
 				case 0x0055:
-					for i := 0; i <= int(cpu.RegisterV[cpu.X()]); i++ {
-						cpu.Memory[i + 1] = cpu.RegisterV[i]
+					for i := 0; i <= int(cpu.X()); i++ {
+						cpu.Memory[int(cpu.Index)+i] = cpu.RegisterV[i]
 					}
 
-					cpu.Index = cpu.Index + uint16(cpu.X()) + 1
+					cpu.Index += uint16(cpu.X()) + 1
 
 					cpu.ProgramCounter += 2
 					break
 
 				case 0x0065:
-					for i := 0; i <= int(cpu.RegisterV[cpu.X()]); i++ {
-						cpu.RegisterV[i] = cpu.Memory[i + 1]
+					for i := 0; i <= int(cpu.X()); i++ {
+						cpu.RegisterV[i] = cpu.Memory[int(cpu.Index)+i]
 					}
 
-					cpu.Index = cpu.Index + uint16(cpu.X()) + 1
+					cpu.Index += uint16(cpu.X()) + 1
 
 					cpu.ProgramCounter += 2
 					break
