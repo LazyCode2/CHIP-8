@@ -106,7 +106,7 @@ func (cpu *Chip8) Emulate() {
 		case 0x8000:
 			switch cpu.Opcode & 0x000F {
 				case 0x0000:
-					cpu.RegisterV[cpu.Y()] = cpu.RegisterV[cpu.X()]
+					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.Y()]
 					cpu.ProgramCounter += 2
 					break
 
@@ -199,5 +199,33 @@ func (cpu *Chip8) Emulate() {
 
 			cpu.ProgramCounter += 2
 			break
+
+		case 0xD000:
+			var XCord = cpu.RegisterV[cpu.X()] % 64
+			var YCord = cpu.RegisterV[cpu.Y()] % 32
+			var Height = cpu.N()
+			cpu.RegisterV[0xF] = 0
+
+			for y := 0; y < int(Height); y++ {
+			    sprite := cpu.Memory[int(cpu.Index)+y]
+
+			    for x := range 8 {
+			        if sprite&(0x80>>x) != 0 {
+			            screenX := (int(XCord) + x) % 64
+			            screenY := (int(YCord) + y) % 32
+			            index := screenX + screenY*64
+
+			            if cpu.Display[index] {
+			                cpu.RegisterV[0xF] = 1
+			            }
+
+			            cpu.Display[index] = !cpu.Display[index]
+			        }
+		    	}
+			}
+			
+			cpu.ProgramCounter += 2
+			break
+			
 	}
 }
