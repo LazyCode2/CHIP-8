@@ -125,9 +125,9 @@ func (cpu *Chip8) Emulate() {
 					break
 
 				case 0x0004:
-					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] + cpu.RegisterV[cpu.Y()]
+					sum := uint16(cpu.RegisterV[cpu.X()]) + uint16(cpu.RegisterV[cpu.Y()])
 					
-					if cpu.RegisterV[cpu.X()] > 255 {
+					if sum > 255 {
 						cpu.RegisterV[0xF] = 1
 					} else {
 						cpu.RegisterV[0xF] = 0
@@ -223,7 +223,7 @@ func (cpu *Chip8) Emulate() {
 			        }
 		    	}
 			}
-			
+
 			cpu.ProgramCounter += 2
 			break
 			
