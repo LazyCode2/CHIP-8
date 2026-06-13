@@ -8,7 +8,7 @@ import (
 
 func main() {
 	CPU := cpu.Chip8{}
-	CPU.Init()
+	CPU.LoadROM("./README.md")
 	CPU.Emulate()
 	
 	// Dummy Instruction

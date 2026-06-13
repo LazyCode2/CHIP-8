@@ -1,8 +1,11 @@
 package cpu
 
 import (
+	"bufio"
 	"fmt"
+	"log"
 	"math/rand"
+	"os"
 )
 
 type Chip8 struct {
@@ -332,7 +335,28 @@ func (cpu *Chip8) Emulate() {
 				default:
 					fmt.Printf("Unknown opcode")
 			}
-			
+
 			break 
 		}
+
+		if cpu.DelayTimer > 0 {
+			cpu.DelayTimer--
+		}
+}
+
+func (cpu *Chip8) LoadROM(Fpath string) {
+	cpu.Init()
+	
+	Rom , err := os.Open(Fpath)
+	if err != nil {
+		log.Fatalf("Failed to open file: %s", err)
+	}
+
+	defer Rom.Close()
+
+	scanner := bufio.NewScanner(Rom)
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Println(line)
+	}
 }
