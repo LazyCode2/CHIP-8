@@ -58,6 +58,11 @@ func (cpu *Chip8) Emulate() {
 					}
 					cpu.ProgramCounter += 2
 					break
+				case 0x00EE:
+				    cpu.StackPointer--
+				    cpu.ProgramCounter = cpu.Stack[cpu.StackPointer]
+				    cpu.ProgramCounter += 2
+				    break
 			}
 		case 0x1000:
 			cpu.ProgramCounter = cpu.Opcode & 0x0FFF
