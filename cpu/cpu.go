@@ -356,7 +356,21 @@ func (cpu *Chip8) LoadROM(Fpath string) {
 
 	scanner := bufio.NewScanner(Rom)
 	for scanner.Scan() {
-		line := scanner.Text()
-		fmt.Println(line)
+		line := scanner.Bytes()
+		for i := range line {
+			cpu.Memory[i+512] = line[i]
+		}
+	}
+}
+
+func (cpu *Chip8) DumpMemory(start, end uint16) {
+	for addr := start; addr < end; addr += 8 {
+		fmt.Printf("%04X: ", addr)
+
+		for i := 0; i < 8 && addr+uint16(i) < end; i++ {
+			fmt.Printf("%02X ", cpu.Memory[addr+uint16(i)])
+		}
+
+		fmt.Println()
 	}
 }
