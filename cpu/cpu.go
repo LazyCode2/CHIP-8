@@ -275,15 +275,21 @@ func (cpu *Chip8) Emulate() {
 					break
 
 				case 0x000A:
-					for i := 0; i < 16; i++ {
-						if cpu.Key[i] != 0 {
-							cpu.RegisterV[cpu.X()] = uint8(i)
-							cpu.ProgramCounter += 2
-							return
-						}
-					}
+				    keyPressed := false
+				    for i := 0; i < 16; i++ {
+				        if cpu.Key[i] != 0 {
+				            cpu.RegisterV[cpu.X()] = uint8(i)
+				            keyPressed = true
+				            break
+				        }
+				    }
 
-					return
+				    if !keyPressed {
+				        return 
+				    }
+				    
+				    cpu.ProgramCounter += 2
+				    break
 
 				case 0x0015:
 					cpu.DelayTimer = cpu.RegisterV[cpu.X()]
