@@ -248,8 +248,8 @@ func (cpu *Chip8) Emulate() {
 		case 0xE000:
 				switch cpu.Opcode & 0x00FF {
 					case 0x009E:
-						if cpu.Key[cpu.X()] != 0 {
-							cpu.ProgramCounter += 4
+						if cpu.Key[cpu.RegisterV[cpu.X()]] != 0 {
+							cpu.ProgramCounter += 2
 						} else {
 							cpu.ProgramCounter += 2
 						}
@@ -257,8 +257,8 @@ func (cpu *Chip8) Emulate() {
 						break
 
 					case 0x00A1:
-						if cpu.Key[cpu.X()] == 0 {
-							cpu.ProgramCounter += 4
+						if cpu.Key[cpu.RegisterV[cpu.X()]] == 0 {
+							cpu.ProgramCounter += 2
 						} else {
 							cpu.ProgramCounter += 2
 						}
