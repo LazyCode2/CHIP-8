@@ -80,7 +80,7 @@ func (g *Game) Layout(_, _ int) (int, int) {
 
 func main() {
 	c := &cpu.Chip8{}
-	c.LoadROM("./rom/danm8ku.ch8")
+	c.LoadROM("./rom/BRIX")
 
 	game := &Game{cpu: c}
 
