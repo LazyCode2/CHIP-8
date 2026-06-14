@@ -44,7 +44,7 @@ func (g *Game) handleKeys() {
 }
 
 func (g *Game) Update() error {
-			g.handleKeys()
+	g.handleKeys()
 
 	for i := 0; i < 8; i++ {
 		g.cpu.Emulate()
@@ -80,7 +80,7 @@ func (g *Game) Layout(_, _ int) (int, int) {
 
 func main() {
 	c := &cpu.Chip8{}
-	c.LoadROM("./rom/BRIX")
+	c.LoadROM("./rom/danm8ku.ch8")
 
 	game := &Game{cpu: c}
 
