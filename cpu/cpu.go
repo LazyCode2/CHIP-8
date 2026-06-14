@@ -370,7 +370,7 @@ func (cpu *Chip8) Emulate() {
 					break
 				
 				default:
-					fmt.Printf("Unknown opcode")
+					fmt.Printf("Unknown opcode: %d",cpu.Opcode)
 			}
 
 			break 
