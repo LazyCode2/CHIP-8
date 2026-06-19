@@ -29,6 +29,8 @@ I built this emulator primarily for learning purposes. The goal of this project 
 * [ ] Super-CHIP support
 * [ ] Configurable key mappings
 
+![PONG Screenshot](./assets/PONG.jpg)
+
 ## Resources
 
 Useful references while building a CHIP-8 emulator:
