@@ -85,30 +85,30 @@ func (cpu *Chip8) Emulate() {
 	cpu.Opcode = uint16(cpu.Memory[cpu.ProgramCounter]) << 8 | uint16(cpu.Memory[cpu.ProgramCounter + 1])
 
 	switch cpu.Opcode & 0xF000 {
-		case 0x0000:
+		case OpcodeSYS:
 			switch cpu.Opcode & 0x00FF {
-				case 0x00E0:
+				case OpcodeCLS:
 					for i := range cpu.Display {
 						cpu.Display[i] = false
 					}
 					cpu.ProgramCounter += 2
 					break
-				case 0x00EE:
+				case OpcodeRET:
 				    cpu.StackPointer--
 				    cpu.ProgramCounter = cpu.Stack[cpu.StackPointer]
 				    cpu.ProgramCounter += 2
 				    break
 			}
-		case 0x1000:
+		case OpcodeJP:
 			cpu.ProgramCounter = cpu.Opcode & 0x0FFF
 			break
 
-		case 0x2000:
+		case OpcodeCALL:
 			cpu.Stack[cpu.StackPointer] = cpu.ProgramCounter
 			cpu.StackPointer++
 			cpu.ProgramCounter = cpu.Opcode & 0xFFF
 		
-		case 0x3000:
+		case OpcodeSEByte:
 			if cpu.RegisterV[cpu.X()] == cpu.NN() {
 				cpu.ProgramCounter += 4
 			} else {
@@ -116,7 +116,7 @@ func (cpu *Chip8) Emulate() {
 			}
 			break
 
-		case 0x4000:
+		case OpcodeSNEByte:
 			if cpu.RegisterV[cpu.X()] != cpu.NN() {
 				cpu.ProgramCounter += 4
 			} else {
@@ -124,7 +124,7 @@ func (cpu *Chip8) Emulate() {
 			}
 			break
 
-		case 0x5000:
+		case OpcodeSEReg:
 			if cpu.RegisterV[cpu.X()] == cpu.RegisterV[cpu.Y()] {
 				cpu.ProgramCounter += 4
 			} else {
@@ -132,12 +132,12 @@ func (cpu *Chip8) Emulate() {
 			}
 			break
 		
-		case 0x6000:
+		case OpcodeLDByte:
 			cpu.RegisterV[cpu.X()] = cpu.NN()
 			cpu.ProgramCounter += 2
 			break
 		
-		case 0x7000:
+		case OpcodeADDByte:
 			result := uint16(cpu.RegisterV[cpu.X()]) + uint16(cpu.NN())
 			cpu.RegisterV[cpu.X()] = uint8(result)
 			cpu.ProgramCounter += 2
@@ -145,26 +145,26 @@ func (cpu *Chip8) Emulate() {
 		
 		case 0x8000:
 			switch cpu.Opcode & 0x000F {
-				case 0x0000:
+				case OpcodeLDReg:
 					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.Y()]
 					cpu.ProgramCounter += 2
 					break
 
-				case 0x0001:
+				case OpcodeOR:
 					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] | cpu.RegisterV[cpu.Y()]
 					cpu.ProgramCounter += 2
 					break
-				case 0x0002:
+				case OpcodeAND:
 					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] & cpu.RegisterV[cpu.Y()]
 					cpu.ProgramCounter += 2
 					break
 
-				case 0x0003:
+				case OpcodeXOR:
 					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] ^ cpu.RegisterV[cpu.Y()]
 					cpu.ProgramCounter += 2
 					break
 
-				case 0x0004:
+				case OpcodeADD:
 					sum := uint16(cpu.RegisterV[cpu.X()]) + uint16(cpu.RegisterV[cpu.Y()])
 					
 					if sum > 255 {
@@ -178,7 +178,7 @@ func (cpu *Chip8) Emulate() {
 					cpu.ProgramCounter += 2
 					break
 
-				case 0x0005:
+				case OpcodeSUB:
 					if cpu.RegisterV[cpu.Y()] > cpu.RegisterV[cpu.X()] {
 						cpu.RegisterV[0xF] = 0
 					} else {
@@ -190,14 +190,14 @@ func (cpu *Chip8) Emulate() {
 					cpu.ProgramCounter += 2
 					break
 
-				case 0x0006:
+				case OpcodeSHR:
 					cpu.RegisterV[0xF] = cpu.RegisterV[cpu.X()] & 0x1
 					cpu.RegisterV[cpu.X()] = cpu.RegisterV[cpu.X()] >> 1
 
 					cpu.ProgramCounter += 2
 					break
 
-				case 0x0007:
+				case OpcodeSUBN:
 					if cpu.RegisterV[cpu.X()] > cpu.RegisterV[cpu.Y()] {
 						cpu.RegisterV[0xF] = 0
 					} else {
@@ -209,14 +209,14 @@ func (cpu *Chip8) Emulate() {
 					cpu.ProgramCounter += 2
 					break
 				
-				case 0x000E:
+				case OpcodeSHL:
 					cpu.RegisterV[0xF] = cpu.RegisterV[cpu.X()] >> 7
 					cpu.RegisterV[cpu.X()] <<= 1
 					cpu.ProgramCounter += 2
 					break
 			}
 
-		case 0x9000:
+		case OpcodeSNEReg:
 			if cpu.RegisterV[cpu.X()] != cpu.RegisterV[cpu.Y()] {
 				cpu.ProgramCounter += 4
 			} else {
@@ -225,23 +225,23 @@ func (cpu *Chip8) Emulate() {
 
 			break
 	
-		case 0xA000:
+		case OpcodeLDI:
 			cpu.Index = cpu.NNN()
 
 			cpu.ProgramCounter += 2
 			break
 		
-		case 0xB000:
+		case OpcodeJPV0:
 			cpu.ProgramCounter = cpu.NNN() + uint16(cpu.RegisterV[0])
 			break
 	
-		case 0xC000:
+		case OpcodeRND:
 			cpu.RegisterV[cpu.X()] = uint8(rand.Int()) & cpu.NN()
 
 			cpu.ProgramCounter += 2
 			break
 
-		case 0xD000:
+		case OpcodeDRW:
 			var XCord = cpu.RegisterV[cpu.X()] % 64
 			var YCord = cpu.RegisterV[cpu.Y()] % 32
 			var Height = cpu.N()
@@ -270,7 +270,7 @@ func (cpu *Chip8) Emulate() {
 
 		case 0xE000:
 				switch cpu.Opcode & 0x00FF {
-					case 0x009E:
+					case OpcodeSKP:
 						if cpu.Key[cpu.RegisterV[cpu.X()]] != 0 {
 							cpu.ProgramCounter += 4
 						} else {
@@ -279,7 +279,7 @@ func (cpu *Chip8) Emulate() {
 
 						break
 
-					case 0x00A1:
+					case OpcodeSKNP:
 						if cpu.Key[cpu.RegisterV[cpu.X()]] == 0 {
 							cpu.ProgramCounter += 4
 						} else {
@@ -291,13 +291,13 @@ func (cpu *Chip8) Emulate() {
 		
 		case 0xF000:
 			switch  cpu.Opcode & 0x00FF {
-				case 0x0007:
+				case OpcodeLDVxDT:
 					cpu.RegisterV[cpu.X()] = cpu.DelayTimer
 
 					cpu.ProgramCounter += 2
 					break
 
-				case 0x000A:
+				case OpcodeLDVxK:
 				    keyPressed := false
 				    for i := 0; i < 16; i++ {
 				        if cpu.Key[i] != 0 {
@@ -314,30 +314,30 @@ func (cpu *Chip8) Emulate() {
 				    cpu.ProgramCounter += 2
 				    break
 
-				case 0x0015:
+				case OpcodeLDDT:
 					cpu.DelayTimer = cpu.RegisterV[cpu.X()]
 
 					cpu.ProgramCounter += 2
 					break
 			
-				case 0x0018:
+				case OpcodeLDST:
 					cpu.SoundTimer = cpu.RegisterV[cpu.X()]
 
 					cpu.ProgramCounter += 2
 					break
 
-				case 0x001E:
+				case OpcodeADDI:
 					cpu.Index += uint16(cpu.RegisterV[cpu.X()])
 
 					cpu.ProgramCounter += 2
 					break
 
-				case 0x0029:
+				case OpcodeLDF:
 					cpu.Index = uint16(cpu.RegisterV[cpu.X()]) * 0x5
 
 					cpu.ProgramCounter += 2
 					break
-				case 0x0033:
+				case OpcodeLDB:
 					x := cpu.RegisterV[cpu.X()]
 
 					cpu.Memory[cpu.Index+2] = x % 10
@@ -349,7 +349,7 @@ func (cpu *Chip8) Emulate() {
 					cpu.ProgramCounter += 2
 					break
 
-				case 0x0055:
+				case OpcodeLDIVx:
 					for i := 0; i <= int(cpu.X()); i++ {
 						cpu.Memory[int(cpu.Index)+i] = cpu.RegisterV[i]
 					}
@@ -359,7 +359,7 @@ func (cpu *Chip8) Emulate() {
 					cpu.ProgramCounter += 2
 					break
 
-				case 0x0065:
+				case OpcodeLDVxI:
 					for i := 0; i <= int(cpu.X()); i++ {
 						cpu.RegisterV[i] = cpu.Memory[int(cpu.Index)+i]
 					}
