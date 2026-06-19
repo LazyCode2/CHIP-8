@@ -389,13 +389,13 @@ func (cpu *Chip8) LoadROM(path string) {
 
 	file, err := os.Open(path)
 	if err != nil {
-		log.Fatalf("failed to open ROM: %v", err)
+		Logger.Error("failed to open ROM: %v", err)
 	}
 	defer file.Close()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
-		log.Fatalf("failed to read ROM: %v", err)
+		Logger.Error("failed to read ROM: %v", err)
 	}
 
 	for i, b := range data {
@@ -405,6 +405,8 @@ func (cpu *Chip8) LoadROM(path string) {
 		}
 		cpu.Memory[addr] = b
 	}
+
+	Logger.Info("ROM Loaded!")
 }
 
 func (cpu *Chip8) DumpMemory(start, end uint16) {
