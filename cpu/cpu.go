@@ -92,14 +92,11 @@ func (cpu *Chip8) Emulate() {
 		case OpcodeSYS:
 			switch cpu.Opcode & 0x00FF {
 				case OpcodeCLS:
-					for i := range cpu.Display {
-						cpu.Display[i] = false
-					}
+					cpu.ExecuteCLS()
 					cpu.ProgramCounter += 2
 					break
 				case OpcodeRET:
-				    cpu.StackPointer--
-				    cpu.ProgramCounter = cpu.Stack[cpu.StackPointer]
+					cpu.ExecuteRET()
 				    cpu.ProgramCounter += 2
 				    break
 			}
@@ -407,6 +404,19 @@ func (cpu *Chip8) LoadROM(path string) {
 	}
 
 	Logger.Info("ROM Loaded!")
+}
+
+// Execute Functions
+
+func (cpu *Chip8) ExecuteCLS() {
+	for i := range cpu.Display {
+		cpu.Display[i] = false
+	}
+}
+
+func (cpu *Chip8) ExecuteRET() {
+    cpu.StackPointer--
+    cpu.ProgramCounter = cpu.Stack[cpu.StackPointer]
 }
 
 func (cpu *Chip8) DumpMemory(start, end uint16) {
