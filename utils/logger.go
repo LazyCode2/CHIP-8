@@ -62,5 +62,3 @@ func (l *Logger) Warn(msg string, args ...any) {
 func (l *Logger) Error(msg string, args ...any) {
 	l.log(ERROR, Red, "ERROR", msg, args...)
 }
-
-how to use it ? on any .go
