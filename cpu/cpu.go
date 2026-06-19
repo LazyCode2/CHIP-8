@@ -6,7 +6,11 @@ import (
 	"log"
 	"math/rand"
 	"os"
+
+	"github.com/LazyCode2/CHIP-8/utils"
 )
+
+var Logger = utils.New(utils.DEBUG)
 
 var FontSet = [80]uint8{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -267,7 +271,6 @@ func (cpu *Chip8) Emulate() {
 
 			cpu.ProgramCounter += 2
 			break
-
 		case 0xE000:
 				switch cpu.Opcode & 0x00FF {
 					case OpcodeSKP:
@@ -370,7 +373,7 @@ func (cpu *Chip8) Emulate() {
 					break
 				
 				default:
-					fmt.Printf("Unknown opcode: %d",cpu.Opcode)
+					Logger.Error("Unknown opcode [%v]",cpu.Opcode)
 			}
 
 			break 
