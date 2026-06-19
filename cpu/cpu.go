@@ -3,7 +3,6 @@ package cpu
 import (
 	"fmt"
 	"io"
-	"log"
 	"math/rand"
 	"os"
 
